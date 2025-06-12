@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ username }}'s Todo List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0d6efd 0%, #6f42c1 100%);
+            font-family: 'Roboto', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .todo-bg-blur {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 80% 20%, #fff3 0%, #fff0 70%),
+                        radial-gradient(circle at 10% 80%, #fff2 0%, #fff0 80%);
+            filter: blur(40px);
+        }
+        .todo-container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.18);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(13,110,253,0.10);
+            padding: 32px 40px 24px 40px;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(16px) saturate(180%);
+            border: 1.5px solid rgba(255,255,255,0.25);
+            animation: fadeInUp 1s cubic-bezier(.23,1.02,.32,1) both;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px);}
+            to { opacity: 1; transform: none;}
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 24px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-shadow: 0 2px 8px #0d6efd44;
+        }
+        .priority-badge {
+            background: linear-gradient(90deg, #0d6efd 60%, #6f42c1 100%);
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-weight: 600;
+            box-shadow: 0 1px 4px #0d6efd33;
+        }
+        td {
+            color: #222 !important;
+            font-size: 1.08rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            background: transparent !important;
+            transition: color 0.2s;
+        }
+        .done-task {
+            text-decoration: line-through;
+            color: #222 !important;     /* Brighter blue for visibility */
+            opacity: 1 !important;        /* Full opacity */
+            font-style: italic;
+            font-weight: 700;
+            background: rgba(13,110,253,0.08);
+            transition: color 0.2s, background 0.2s;
+        }
+        .empty-message {
+            text-align: center;
+            color: #e0e7ef;
+            font-size: 1.15rem;
+            padding: 24px 0;
+            font-style: italic;
+        }
+        .form-control {
+            border-radius: 14px;
+            font-size: 1.08rem;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.7);
+            border: 1.5px solid #e0e7ef;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.15rem #0d6efd33;
+            background: #fff;
+        }
+        .btn-success {
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, #0d6efd 60%, #6f42c1 100%);
+            border: none;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px #0d6efd22;
+        }
+        .btn-success:hover {
+            background: linear-gradient(90deg, #6f42c1 0%, #0d6efd 100%);
+            box-shadow: 0 4px 16px #0d6efd33;
+        }
+        .btn-danger, .btn-done {
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .btn-done {
+            background: linear-gradient(90deg, #28a745 60%, #6f42c1 100%);
+            color: #fff;
+            border: none;
+            margin-right: 6px;
+        }
+        .btn-done:hover {
+            background: linear-gradient(90deg, #218838 0%, #0d6efd 100%);
+        }
+        .btn-outline-secondary {
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 16px;
+            width: 100%;
+        }
+        table {
+            background: transparent;
+        }
+        th, td {
+            background: transparent !important;
+        }
+        @media (max-width: 800px) {
+            .todo-container {
+                padding: 18px 4px 12px 4px;
+            }
+            h1 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="todo-bg-blur"></div>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <!-- Active Tasks -->
+            <div class="col-12 col-md-6">
+                <div class="todo-container mb-4">
+                    <h1>{{ username }}'s To Do List</h1>
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Priority</th>
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody id="todoBody">
+                            <!-- Filled by JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>
+                                    <input type="text" id="newtodo" class="form-control" placeholder="Task Name" required>
+                                </td>
+                                <td>
+                                    <input type="number" id="priority" class="form-control" placeholder="Priority" min="1" required>
+                                </td>
+                                <td>
+                                    <button id="addBtn" class="btn btn-success btn-sm">Add Task</button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <button id="logoutBtn" class="btn btn-outline-secondary">Logout</button>
+                </div>
+            </div>
+            <!-- Done Tasks -->
+            <div class="col-12 col-md-5">
+                <div class="todo-container" style="background: rgba(255,255,255,0.10);">
+                    <h1 style="font-size:1.5rem;">Completed Tasks</h1>
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Priority</th>
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody id="doneBody">
+                            <!-- Filled by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    // Load todos
+    let todosCache = {};
+    async function loadTodos() {
+        const response = await fetch("/api/todos");
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
+        const data = await response.json();
+        todosCache = data; // Cache for validation
+
+        const tbody = document.getElementById("todoBody");
+        const doneBody = document.getElementById("doneBody");
+        tbody.innerHTML = "";
+        doneBody.innerHTML = "";
+
+        // Sort tasks by priority (ascending, lower number = higher priority)
+        const sortedIds = Object.keys(data).sort((a, b) => {
+            const pa = parseInt(data[a].priority, 10);
+            const pb = parseInt(data[b].priority, 10);
+            return pa - pb;
+        });
+
+        let activeCount = 0, doneCount = 0;
+
+        for (const id of sortedIds) {
+            const task = data[id];
+            const done = task.done ? "done-task" : "";
+            const doneBtnText = task.done ? "Undone" : "Done";
+            const rowHtml = `
+                <tr>
+                    <td class="${done}">${task.name}</td>
+                    <td><span class="priority-badge">${task.priority}</span></td>
+                    <td>
+                        <button class="btn btn-done btn-sm" onclick="toggleDone('${id}')">${doneBtnText}</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteTodo('${id}')">Delete</button>
+                    </td>
+                </tr>
+            `;
+            if (task.done) {
+                doneBody.innerHTML += rowHtml;
+                doneCount++;
+            } else {
+                tbody.innerHTML += rowHtml;
+                activeCount++;
+            }
+        }
+
+        if (activeCount === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="empty-message">🎉 No tasks yet! Add your first task below.</td></tr>`;
+        }
+        if (doneCount === 0) {
+            doneBody.innerHTML = `<tr><td colspan="3" class="empty-message">No completed tasks yet.</td></tr>`;
+        }
+    }
+    loadTodos();
+
+    // Add todo
+    document.getElementById("addBtn").onclick = addTask;
+
+    // Add todo on Enter key in either input
+    document.getElementById("newtodo").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            addTask();
+        }
+    });
+    document.getElementById("priority").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            addTask();
+        }
+    });
+
+    async function addTask() {
+        const newtodo = document.getElementById("newtodo").value;
+        const priority = document.getElementById("priority").value;
+        if (!newtodo || !priority) return;
+
+        // Prevent duplicate priority for not-done tasks
+        for (const id in todosCache) {
+            if (
+                todosCache[id].priority == priority &&
+                (!todosCache[id].done || todosCache[id].done === false)
+            ) {
+                alert("A task with this priority already exists and is not marked as done.");
+                return;
+            }
+        }
+
+        const formData = new FormData();
+        formData.append("newtodo", newtodo);
+        formData.append("priority", priority);
+
+        const response = await fetch("/add", {
+            method: "POST",
+            body: formData
+        });
+        if (response.redirected || response.ok) {
+            document.getElementById("newtodo").value = "";
+            document.getElementById("priority").value = "";
+            loadTodos();
+        } else if (response.status === 401) {
+            window.location.href = "/login";
+        }
+    };
+
+    // Delete todo
+    window.deleteTodo = async function(id) {
+        const response = await fetch(`/delete/${id}`);
+        if (response.redirected || response.ok) {
+            loadTodos();
+        } else if (response.status === 401) {
+            window.location.href = "/login";
+        }
+    };
+
+    // Toggle done/undone
+    window.toggleDone = async function(id) {
+        const response = await fetch(`/toggle_done/${id}`, { method: "POST" });
+        if (response.redirected || response.ok) {
+            loadTodos();
+        } else if (response.status === 401) {
+            window.location.href = "/login";
+        }
+    };
+
+    // Logout
+    document.getElementById("logoutBtn").onclick = function() {
+        window.location.href = "/login";
+    };
+    </script>
+</body>
+</html>
