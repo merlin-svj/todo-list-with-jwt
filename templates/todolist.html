@@ -306,7 +306,7 @@
             document.getElementById("priority").value = "";
             loadTodos();
         } else if (response.status === 401) {
-            window.location.href = "/login";
+            window.location.href = "https://todo-list-with-jwt.onrender.com/login";
         }
     };
 
@@ -316,7 +316,7 @@
         if (response.redirected || response.ok) {
             loadTodos();
         } else if (response.status === 401) {
-            window.location.href = "/login";
+            window.location.href = "https://todo-list-with-jwt.onrender.com/login";
         }
     };
 
@@ -326,13 +326,13 @@
         if (response.redirected || response.ok) {
             loadTodos();
         } else if (response.status === 401) {
-            window.location.href = "/login";
+            window.location.href = "https://todo-list-with-jwt.onrender.com/login";
         }
     };
 
     // Logout
     document.getElementById("logoutBtn").onclick = function() {
-        window.location.href = "/login";
+        window.location.href = "https://todo-list-with-jwt.onrender.com/login";
     };
     </script>
 </body>
